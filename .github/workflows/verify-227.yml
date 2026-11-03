@@ -33,6 +33,11 @@ jobs:
       DJANGO_MAILER_PRIMARY_HOST_PASSWORD: ci
       DJANGO_MAILER_PRIMARY_HOST_USER: ci
       DJANGO_MAILER_PRIMARY_HOST_PORT: "25"
+      # paths the Dockerfile sets for the web image
+      DJANGO_STATIC_ROOT: /usr/src/static
+      DJANGO_MEDIA_ROOT: /usr/src/media
+      DJANGO_BUILD_DIR: /usr/src/build/
+      TZ: Europe/Prague
     steps:
       - uses: actions/checkout@v4
       - name: System packages
@@ -48,6 +53,6 @@ jobs:
       - name: Test
         working-directory: fiesta
         run: |
-          mkdir -p /usr/src/wiki/db
+          mkdir -p /usr/src/wiki/db /usr/src/static /usr/src/media /usr/src/build
           /venv/bin/python -c "import phonenumbers; print('phonenumbers', phonenumbers.__version__)"
           /venv/bin/python manage.py test apps.accounts.forms.test_social_accounts_fields --verbosity 2
