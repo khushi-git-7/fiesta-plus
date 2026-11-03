@@ -1,0 +1,42 @@
+name: verify-227
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: python:3.12-bookworm
+    strategy:
+      fail-fast: false
+      matrix:
+        phonenumbers: ["locked", "8.13.24"]
+    services:
+      db:
+        image: postgres:15
+        env:
+          POSTGRES_USER: fiesta
+          POSTGRES_PASSWORD: fiesta
+          POSTGRES_DB: fiesta
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DJANGO_CONFIGURATION: Development
+      DJANGO_SECRET_KEY: ci-only-not-secret
+      ROOT_DOMAIN: fiesta.test
+      UV_PROJECT_ENVIRONMENT: /venv
+    steps:
+      - uses: actions/checkout@v4
+      - name: System packages
+        run: apt-get update && apt-get install -y default-libmysqlclient-dev pkg-config build-essential
+      - name: Install
+        run: |
+          pip install uv
+          uv sync --frozen --no-install-project
+          uv pip install --python /venv/bin/python "setuptools<81"
+      - name: Old phonenumberslite
+        if: matrix.phonenumbers != 'locked'
+        run: uv pip install --python /venv/bin/python "phonenumberslite==${{ matrix.phonenumbers }}"
+      - name: Test
+        working-directory: fiesta
+        run: |
+          mkdir -p /usr/src/wiki/db
+          /venv/bin/python -c "import phonenumbers; print('phonenumbers', phonenumbers.__version__)"
+          /venv/bin/python manage.py test apps.accounts.forms.test_social_accounts_fields --verbosity 2
