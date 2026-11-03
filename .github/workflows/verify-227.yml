@@ -22,6 +22,17 @@ jobs:
       DJANGO_SECRET_KEY: ci-only-not-secret
       ROOT_DOMAIN: fiesta.test
       UV_PROJECT_ENVIRONMENT: /venv
+      # dummy values: every SecretValue is read when the settings module is imported
+      DJANGO_RECAPTCHA_SITE_KEY: ci
+      DJANGO_RECAPTCHA_SECRET_KEY: ci
+      DJANGO_AWS_S3_ACCESS_KEY_ID: ci
+      DJANGO_AWS_S3_SECRET_ACCESS_KEY: ci
+      DJANGO_AWS_STORAGE_BUCKET_NAME: ci
+      DJANGO_AWS_S3_REGION_NAME: ci
+      DJANGO_MAILER_PRIMARY_HOST: ci
+      DJANGO_MAILER_PRIMARY_HOST_PASSWORD: ci
+      DJANGO_MAILER_PRIMARY_HOST_USER: ci
+      DJANGO_MAILER_PRIMARY_HOST_PORT: "25"
     steps:
       - uses: actions/checkout@v4
       - name: System packages
